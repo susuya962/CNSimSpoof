@@ -1,0 +1,10 @@
+*.apk
+*.dex
+*.class
+build/
+out/
+__pycache__/
+*.db
+*.db-wal
+*.db-shm
+*.log
