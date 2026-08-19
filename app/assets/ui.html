@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>系统参数</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family:-apple-system,"MIUI Logger","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  background:#0b0f1a; color:#e8ecf4; min-height:100vh; padding-bottom:96px;
+}
+.hd { padding:28px 22px 18px; display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg,#101828 0%,#0b0f1a 100%); border-bottom:1px solid #1c2536; }
+.hd .ic { width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg,#3b82f6,#6366f1);
+  display:flex; align-items:center; justify-content:center; font-size:24px; }
+.hd h1 { font-size:20px; font-weight:700; }
+.hd .sub { font-size:12px; color:#6b7a99; margin-top:2px; }
+.card { background:#111827; margin:14px 16px; border-radius:16px; padding:4px 18px 8px; border:1px solid #1f2a3d; }
+.row { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid #1a2333; }
+.row:last-child { border-bottom:none; }
+.row .lbl { font-size:15px; }
+.row .hint { font-size:11px; color:#5b6b8c; margin-top:2px; }
+.sw { position:relative; width:52px; height:30px; flex-shrink:0; }
+.sw input { display:none; }
+.sw .tr { position:absolute; inset:0; background:#2a3550; border-radius:15px; transition:.2s; cursor:pointer; }
+.sw .tr::after { content:""; position:absolute; width:24px; height:24px; border-radius:50%; top:3px; left:3px;
+  background:#8b96ad; transition:.2s; }
+.sw input:checked + .tr { background:#2563eb; }
+.sw input:checked + .tr::after { left:25px; background:#fff; }
+.seg { display:flex; background:#0d1424; border-radius:10px; padding:3px; gap:3px; }
+.seg button { border:none; background:transparent; color:#7e8db0; font-size:13px; padding:7px 14px;
+  border-radius:8px; cursor:pointer; }
+.seg button.on { background:#2563eb; color:#fff; font-weight:600; }
+.seg2 { display:flex; gap:10px; }
+.seg2 button { flex:1; border:1px solid #263250; background:#0d1424; color:#8fa0c4; font-size:13px;
+  padding:9px 0; border-radius:10px; cursor:pointer; }
+.seg2 button.on { border-color:#3b82f6; background:#132445; color:#7db3ff; font-weight:600; }
+.bars { display:flex; gap:5px; align-items:flex-end; height:26px; }
+.bars i { width:6px; background:#2a3550; border-radius:2px; display:block; }
+.bars i:nth-child(1){height:8px}.bars i:nth-child(2){height:12px}.bars i:nth-child(3){height:17px}
+.bars i:nth-child(4){height:23px}.bars i:nth-child(5){height:26px}
+.bars i.lit { background:linear-gradient(180deg,#60a5fa,#2563eb); }
+input.txt { background:#0d1424; border:1px solid #263250; color:#dce6f7; border-radius:9px;
+  font-size:13px; padding:8px 12px; width:150px; text-align:right; outline:none; }
+input.txt:focus { border-color:#3b82f6; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px 0; }
+.fld { background:#0d1424; border:1px solid #263250; border-radius:12px; padding:10px 12px; }
+.fld label { display:block; font-size:11px; color:#6b7a99; margin-bottom:5px; }
+.fld input { background:transparent; border:none; outline:none; color:#e8ecf4; font-size:14px; width:100%; }
+.btnbar { position:fixed; left:0; right:0; bottom:0; padding:12px 16px 18px;
+  background:linear-gradient(180deg,rgba(11,15,26,0) 0%,#0b0f1a 30%); display:flex; gap:10px; }
+button.act { flex:1; border:none; border-radius:13px; padding:14px 0; font-size:15px; font-weight:700; cursor:pointer; }
+#apply { background:linear-gradient(135deg,#3b82f6,#6366f1); color:#fff; }
+#preset1 { background:#111827; color:#8fa0c4; border:1px solid #263250 !important; }
+#preset2 { background:#111827; color:#8fa0c4; border:1px solid #263250 !important; }
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px);
+  background:#1d2a45; color:#9dc1ff; padding:10px 22px; border-radius:20px; font-size:13px;
+  transition:.3s; border:1px solid #2c3f6b; z-index:99; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+.status { font-size:11px; color:#5b6b8c; text-align:center; margin-top:6px; }
+.disabled { opacity:.35; pointer-events:none; }
+.hidden { display:none; }
+.adv-hd { display:flex; justify-content:space-between; align-items:center; padding:13px 0; cursor:pointer; }
+.adv-hd .arr { color:#5b6b8c; transition:.2s; font-size:12px; }
+.adv-hd.open .arr { transform:rotate(90deg); }
+.adv-body { display:none; }
+.adv-body.open { display:block; }
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="ic">🛠️</div>
+  <div>
+    <h1 id="ttl">系统参数</h1>
+    <div class="sub">System Parameter Overlay</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <div><div class="lbl">启用伪装</div><div class="hint">关闭后立即恢复真实状态</div></div>
+    <label class="sw"><input type="checkbox" id="on"><span class="tr"></span></label>
+  </div>
+  <div class="row">
+    <div><div class="lbl">移动数据磁贴</div><div class="hint">保持可用状态</div></div>
+    <label class="sw"><input type="checkbox" id="data"><span class="tr"></span></label>
+  </div>
+</div>
+
+<div class="card" id="mainCard">
+  <div class="row">
+    <div><div class="lbl">运营商</div><div class="hint" id="plmnHint">46003 · 中国电信</div></div>
+    <div class="seg2">
+      <button id="opCT">电信</button><button id="opCM">移动</button><button id="opCU">联通</button>
+    </div>
+  </div>
+  <div class="row">
+    <div><div class="lbl">信号格数</div><div class="hint" id="lvHint">满格 · -51dBm</div></div>
+    <div class="bars" id="bars"></div>
+  </div>
+  <div class="row">
+    <div><div class="lbl">信号档位</div></div>
+    <div class="seg">
+      <button data-lv="0">0</button><button data-lv="1">1</button><button data-lv="2">2</button>
+      <button data-lv="3">3</button><button data-lv="4" class="on">4</button>
+    </div>
+  </div>
+  <div class="row">
+    <div><div class="lbl">双卡模式</div><div class="hint">状态栏显示两张 SIM</div></div>
+    <label class="sw"><input type="checkbox" id="dual"><span class="tr"></span></label>
+  </div>
+</div>
+
+<div class="card" id="card2" style="display:none">
+  <div class="adv-hd" id="advHd">
+    <div><div class="lbl">卡 2 参数</div></div><div class="arr">▶</div>
+  </div>
+  <div class="adv-body" id="advBody">
+    <div class="grid2">
+      <div class="fld"><label>运营商名称</label><input id="n2" placeholder="中国联通"></div>
+      <div class="fld"><label>PLMN</label><input id="p2" placeholder="46001"></div>
+      <div class="fld"><label>ICCID</label><input id="i2" placeholder="898601…"></div>
+      <div class="fld"><label>IMSI</label><input id="m2" placeholder="460011234567890"></div>
+      <div class="fld"><label>号码</label><input id="t2" placeholder="+8618612345678"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="adv-hd open" id="advHd1">
+    <div><div class="lbl">高级参数 · 卡 1</div></div><div class="arr">▼</div>
+  </div>
+  <div class="adv-body open" id="advBody1">
+    <div class="grid2">
+      <div class="fld"><label>运营商名称</label><input id="n1" placeholder="中国电信"></div>
+      <div class="fld"><label>PLMN</label><input id="p1" placeholder="46003"></div>
+      <div class="fld"><label>ICCID</label><input id="i1" placeholder="898603…"></div>
+      <div class="fld"><label>IMSI</label><input id="m1" placeholder="460031234567890"></div>
+      <div class="fld"><label>号码</label><input id="t1" placeholder="+8618912345678"></div>
+    </div>
+  </div>
+</div>
+
+<div class="btnbar">
+  <button class="act" id="preset1">预设 A</button>
+  <button class="act" id="preset2">预设 B</button>
+  <button class="act" id="apply">应用</button>
+</div>
+<div class="toast" id="toast">已应用</div>
+
+<script>
+var P = {
+  CT:{n:"中国电信",p:"46003",i:"89860312345678901234",m:"460031234567890",t:"+8618912345678"},
+  CM:{n:"中国移动",p:"46000",i:"89860012345678901234",m:"460001234567890",t:"+8613912345678"},
+  CU:{n:"中国联通",p:"46001",i:"89860112345678901234",m:"460011234567890",t:"+8618612345678"}
+};
+var OPS = [
+  {op:"CT", sub:"CU"},
+  {op:"CM", sub:"CU"},
+  {op:"CU", sub:"CT"}
+];
+var $ = function(id){ return document.getElementById(id); };
+var st = { on:0, dual:0, data:1, lv:4, n1:"",n2:"",p1:"",p2:"",i1:"",i2:"",m1:"",m2:"",t1:"",t2:"" };
+
+function esc(s){ var d=document.createElement("div"); d.textContent=s==null?"":s; return d.innerHTML; }
+function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); },1600); }
+
+function render(){
+  $("on").checked = st.on==1;
+  $("dual").checked = st.dual==1;
+  $("data").checked = st.data==1;
+  $("n1").value = st.n1; $("p1").value = st.p1; $("i1").value = st.i1; $("m1").value = st.m1; $("t1").value = st.t1;
+  $("n2").value = st.n2; $("p2").value = st.p2; $("i2").value = st.i2; $("m2").value = st.m2; $("t2").value = st.t2;
+  $("card2").style.display = st.dual==1 ? "" : "none";
+  document.querySelectorAll(".seg button").forEach(function(b){
+    b.classList.toggle("on", parseInt(b.dataset.lv)==st.lv);
+  });
+  var bars = $("bars");
+  bars.innerHTML = "";
+  for(var k=0;k<5;k++){ var bi=document.createElement("i"); if(k<=st.lv) bi.className="lit"; bars.appendChild(bi); }
+  var dbm = [-107,-97,-87,-72,-51][st.lv];
+  $("lvHint").textContent = (st.lv==4?"满格":st.lv+" 格") + " · " + dbm + "dBm";
+  var opn = $("n1").value || "—";
+  $("plmnHint").textContent = ($("p1").value||"—") + " · " + opn;
+  $("mainCard").classList.toggle("disabled", st.on!=1);
+  $("ttl").textContent = st.on==1 ? "系统参数 · 运行中" : "系统参数";
+}
+
+function collect(){
+  st.on = $("on").checked?1:0; st.dual=$("dual").checked?1:0; st.data=$("data").checked?1:0;
+  st.lv = parseInt((document.querySelector(".seg button.on")||{dataset:{lv:4}}).dataset.lv);
+  st.n1=$("n1").value; st.p1=$("p1").value; st.i1=$("i1").value; st.m1=$("m1").value; st.t1=$("t1").value;
+  st.n2=$("n2").value; st.p2=$("p2").value; st.i2=$("i2").value; st.m2=$("m2").value; st.t2=$("t2").value;
+}
+
+$("on").addEventListener("change", function(){ collect(); render(); });
+$("dual").addEventListener("change", function(){
+  if(this.checked && !$("n2").value){
+    var sub = P.CU; $("n2").value=sub.n; $("p2").value=sub.p; $("i2").value=sub.i; $("m2").value=sub.m; $("t2").value=sub.t;
+  }
+  collect(); render();
+});
+$("data").addEventListener("change", function(){ collect(); render(); });
+document.querySelectorAll(".seg button").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".seg button").forEach(function(x){ x.classList.remove("on"); });
+    b.classList.add("on"); collect(); render();
+  });
+});
+
+function setOp(idx){
+  var o = OPS[idx];
+  var m = P[o.op];
+  $("n1").value=m.n; $("p1").value=m.p; $("i1").value=m.i; $("m1").value=m.m; $("t1").value=m.t;
+  var s = P[o.sub];
+  $("n2").value=s.n; $("p2").value=s.p; $("i2").value=s.i; $("m2").value=s.m; $("t2").value=s.t;
+  collect(); render();
+}
+$("opCT").addEventListener("click", function(){ setOp(0); document.querySelectorAll(".seg2 button").forEach(function(x){x.classList.remove("on")}); this.classList.add("on"); });
+$("opCM").addEventListener("click", function(){ setOp(1); document.querySelectorAll(".seg2 button").forEach(function(x){x.classList.remove("on")}); this.classList.add("on"); });
+$("opCU").addEventListener("click", function(){ setOp(2); document.querySelectorAll(".seg2 button").forEach(function(x){x.classList.remove("on")}); this.classList.add("on"); });
+
+$("advHd").addEventListener("click", function(){ $("advBody").classList.toggle("open"); this.classList.toggle("open"); });
+$("advHd1").addEventListener("click", function(){ $("advBody1").classList.toggle("open"); this.classList.toggle("open"); });
+
+$("apply").addEventListener("click", function(){
+  collect();
+  bridge.set(st.on, st.dual, st.data, st.lv, st.n1, st.n2, st.p1, st.p2,
+             st.i1, st.i2, st.m1, st.m2, st.t1, st.t2);
+  var r = bridge.apply();
+  toast(r=="ok" ? "已应用" : "应用失败");
+});
+$("preset1").addEventListener("click", function(){
+  setOp(0); $("dual").checked=false; $("lv").value=4;
+  document.querySelectorAll(".seg button").forEach(function(x){ x.classList.remove("on"); });
+  document.querySelector('.seg button[data-lv="4"]').classList.add("on");
+  collect(); render(); toast("预设 A · 电信满格单卡");
+});
+$("preset2").addEventListener("click", function(){
+  setOp(0); $("dual").checked=true;
+  if(!$("n2").value){ var s=P.CU; $("n2").value=s.n; $("p2").value=s.p; $("i2").value=s.i; $("m2").value=s.m; $("t2").value=s.t; }
+  document.querySelectorAll(".seg button").forEach(function(x){ x.classList.remove("on"); });
+  document.querySelector('.seg button[data-lv="4"]').classList.add("on");
+  collect(); render(); toast("预设 B · 电信+联通双卡");
+});
+
+if(window.bridge){ var c = bridge.getCfg(); if(c){ try{ st = JSON.parse(c); }catch(e){} } }
+render();
+</script>
+</body>
+</html>
